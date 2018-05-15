@@ -1,0 +1,56 @@
+#!/bin/sh
+
+WORKDIR='~/.revepy'
+PREVDIR=$PWD
+
+help(){
+        echo "Usage: slide [option] markdown-file"
+        echo "copy markdown-file to ~/.revealinx/slide/"
+        echo
+        echo "Option:"
+        echo "    -o open localhost:8080(slide page)"
+        echo "    -h show help"
+        echo "    -p open pdf page"
+        echo
+        echo "e.g.:"
+        echo "   $slide -o markdown-file"
+        echo "      copy and open"
+        echo "    $slide -o"
+        echo "      open slide page"
+        echo "   $slide -p"
+        echo "      open pdf page"
+}
+
+p_run(){
+    if !  netstat -an | grep 55555 | grep LISTEN 1>/dev/null 2>/dev/null; then
+        cd $WORKDER
+        python3 -m http.server 55555 &
+        cd $PREVDIR
+    fi
+}
+
+getopts "hop" opts
+
+if [ $opts = "o" ]; then
+    if [ $2 ] ; then
+        cp $2 $WORKDIR/slide/slide.md
+        p_run
+        open http://localhost:55555
+    else 
+        p_run
+        open http://localhost:55555
+    fi
+elif [ $opts = "h" ]; then
+       help 
+elif [ $opts = "p" ]; then
+        p_run
+        open 'http://localhost:55555/?print-pdf'
+else
+    if [ $1 ] ; then
+        cp $1 $WORKDIR/slide/slide.md
+    else
+        p_run
+        open http://localhost:55555
+    fi
+fi
+
